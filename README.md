@@ -8,10 +8,10 @@ sudo apt install -y python3 python3-pip
 
 ---
 
-## 2. Install MariaDB
+## 2. Install MariaDB and MariaDB Connector
 
 ```bash
-sudo apt install -y mariadb-server
+sudo apt install -y mariadb-server libmariadb3 libmariadb-dev
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 ```
