@@ -32,10 +32,12 @@ print(f"HTTPS_ONLY: {HTTPS_ONLY}")
 
 publicsshkey_path = os.path.expanduser(publicsshkey_path) 
 
-
-with  open(publicsshkey_path, 'r') as file:
-    publickey = file.read()
-
+try:
+    with open(publicsshkey_path, 'r') as file:
+        publickey = file.read()
+except Exception as e:
+    print(f"Fehler beim Laden des Public SSH Keys: {e}")
+    publickey = ""
 
 
 # Verbindung zur Datenbank
