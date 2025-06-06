@@ -192,3 +192,11 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+create_user.py
+.gitignore
+Get Elements.py
+.gitignore
+delete_user.py
+mysql.py
+old.py
+SQL.sql

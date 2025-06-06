@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>CommandDeck</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <!-- <header>
+        <h1>CommandDeck</h1>
+        {% if current_user.is_authenticated %}
+        <div class="logout-container">
+            <form action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="logout-btn">Logout ({{ current_user.username }})</button>
+            </form>
+        </div>
+        {% endif %}
+    </header> -->
+
+    <header>
+        <h1>CommandDeck</h1>
+        {% if current_user.is_authenticated %}
+        <button class="hamburger-btn" onclick="togglesidebar_right()">
+            <img src="{{ url_for('static', filename='menu.png') }}" alt="Menu">
+        </button>
+        {% endif %}
+    </header>
+
+    <!-- sidebar_right -->
+    <div class="sidebar_right-overlay" onclick="togglesidebar_right()"></div>
+    <nav class="sidebar_right">
+        <div class="sidebar_right-content">
+            <!-- Hier können Seitenlinks hinzugefügt werden -->
+            <a href="{{ url_for('index') }}" class="sidebar_right-link">Home</a><br>
+            <a href="{{ url_for('settings') }}" class="sidebar_right-link">Einstellungen</a><br>
+            <!-- Weitere Links... -->
+        </div>
+        <div class="sidebar_right-footer">
+            <form action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="logout-btn">Logout ({{ current_user.username }})</button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- Popup für Button-Erstellung -->
+     {% if current_user.permission_level == 'admin' %}
+    <button class="btn-open-popup" style="margin-top: 50px;" onclick="togglePopup()">Create Button</button>
+    {% endif %}
+
+    <div id="popupOverlay" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: white;">Create Button</h2>
+
+            <form action="{{ url_for('index') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="button_name" class="form-label">Button Name:</label>
+                    <input type="text" id="button_name" name="button_name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sort_order" class="form-label">Order:</label>
+                    <input type="number" id="sort_order" name="sort_order" 
+                           class="form-input" 
+                           min="1" 
+                           value="{{ max_sort_order + 1 }}">
+                </div>
+            
+                <div class="form-group">
+                    <label for="command_type" class="form-label">Command:</label>
+                    <select id="command_type" name="command_type" class="form-input" required>
+                        <option disabled selected value> Select Command: </option>
+                        <option value="ping">Ping</option>
+                        <option value="echo">Echo</option>
+                        <option value="nslookup">NSLookup</option>
+                        <option value="remote-execution">Remote Execution</option>
+                        <option value="custom">Custom Command</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="command_type" class="form-label">Color:</label><br>
+                    <input type="color" name="button_color" id="button_color" class="form-input" value="{{ button_color}}">
+                </div>
+            
+                <!-- Eingabefelder für Ping-Optionen -->
+                <div id="ping_params" style="display:none;" class="form-group">
+                    <label class="form-label" for="target">Ziel (IP oder Host):</label>
+                    <input class="form-input" type="text" id="target" name="target" class="form-control">
+                    <label class="form-label" for="count">Anzahl der Pings:</label>
+                    <input class="form-input" type="number" id="count" name="count" class="form-control">
+                </div>
+            
+                <!-- Eingabefelder für Echo-Optionen -->
+                <div id="echo_params" style="display:none;" class="form-group">
+                    <label class="form-label" for="text">Text:</label>
+                    <input class="form-input" type="text" id="text" name="text" class="form-control">
+                </div>
+            
+                <!-- Eingabefelder für nslookup-Optionen -->
+                <div id="nslookup_params" style="display:none;" class="form-group">
+                    <label class="form-label" for="domain">Domain:</label>
+                    <input class="form-input" type="text" id="domain" name="domain" class="form-control">
+                </div>
+
+                <!-- Eingabefelder für Remote-Ausführung -->
+                <div id="remote_execution_params" style="display:none;" class="form-group">
+                    <label class="form-label" for="remote_command">Remote Command:</label>
+                    <input class="form-input" type="text" id="remote_command" name="remote_command" class="form-control">
+                    <label class="form-label" for="remote_host">Remote Host:</label>
+                    <input class="form-input" type="text" id="remote_host" name="remote_host" class="form-control">
+                    <label class="form-label" for="remote_port">Remote Port:</label>
+                    <input class="form-input" type="number" id="remote_port" name="remote_port" class="form-control" value="22">
+                    <label class="form-label" for="remote_username">Username:</label>
+                    <input class="form-input" type="text" id="remote_username" name="remote_username" class="form-control">
+                </div>
+
+                <!-- Eingabefeld für benutzerdefinierten Code -->
+                <div id="custom_params" style="display:none;" class="form-group">
+                    <label class="form-label" for="custom_command">Custom Command:</label>
+                    <input class="form-input" type="text" id="custom_command" name="custom_command" class="form-control">
+                </div>
+            
+                <button type="submit" name="add_button" class="btn-submit">Add Button</button>
+            </form>
+
+            <button class="btn-close-popup" onclick="togglePopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Popup für Button-Löschung -->
+     {% if current_user.permission_level == 'admin' %}
+    <button class="btn-open-popup" style="background-color: #D32F2F;" onclick="togglePopup_delete()">Delete Button</button>
+    {% endif %}
+
+    <div id="popup_delete" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: red;">Delete Button</h2>
+            <form action="/" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label>Button Name:</label>
+                <input class="form-input" type="text" name="button_name" required>
+                <br>
+                <br>
+                <input class="btn-remove" type="submit" name="delete_button" value="Delete Button">
+            </form>
+            <button class="btn-close-popup" onclick="togglePopup_delete()">Close</button>
+        </div>
+    </div>
+
+    <div id="popup_modify" class="overlay-container">
+        <div class="popup-box">
+            <h2>Modify Button</h2>
+            <form action="/" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="modify_button_id" name="button_id">
+                <div class="form-group">
+                    <label class="form-label" for="modify_name">Name:</label>
+                    <input class="form-input" type="text" id="modify_name" name="button_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="modify_command">Command:</label>
+                    <input class="form-input" type="text" id="modify_command" name="command" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="modify_sort_order">Order:</label>
+                    <input class="form-input" type="number" id="modify_sort_order" name="sort_order" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="modify_color">Color:</label>
+                    <input class="form-input" type="color" id="modify_color" name="button_color" value="{{ button_color | default('#3498db') }}">
+                </div>
+                <br>
+                <input class="btn-modify" type="submit" name="modify_button" value="Save">
+            </form>
+            <button class="btn-close-popup" onclick="togglePopup_modify()">Close</button>
+        </div>
+    </div>
+    
+    <!-- Ausgabe der Daten -->
+    <br>
+    <h2>Output:</h2>
+    <br>
+    <pre>{{output}}</pre>
+    <br>
+
+    <hr>
+
+    <!-- Grid für Buttons -->
+    <div class="grid-container">
+        {% for button in buttons %}
+        <form action="/" method="POST" class="button-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="pressed_button" value="{{ button.name }}">
+            <input type="hidden" name="pressed_command" value="{{ button.command }}">
+            <div class="button-container">
+                <button class="main-button" type="submit" style="--btncolor: {{ button.color | default('#3498db') }}">{{ button.name }}</button>
+                {% if current_user.permission_level == 'admin' %}
+                <button class="btn-modify-small" type="button" onclick="togglePopup_modify('{{ button.id }}', '{{ button.name }}', '{{ button.command }}', '{{ button.sort_order }}','{{ button.color }}')">Modify</button>
+                {% endif %}
+            </div>
+        </form>
+        {% endfor %}
+    </div> 
+</body>
+</html>
+
+<script>
+    function togglePopup(popup) {
+        const overlay = document.getElementById('popupOverlay');
+        overlay.classList.toggle('show');
+    }
+
+    function togglePopup_delete() {
+        const overlay = document.getElementById('popup_delete');
+        overlay.classList.toggle('show');
+    }
+
+    function togglePopup_modify(buttonId = '', buttonName = '', buttonCommand = '', sortOrder = 0, buttonColor = '#3498db') {
+        const overlay = document.getElementById('popup_modify');
+        overlay.classList.toggle('show');
+        document.getElementById('modify_button_id').value = buttonId;
+        document.getElementById('modify_name').value = buttonName;
+        document.getElementById('modify_command').value = buttonCommand;
+        document.getElementById('modify_sort_order').value = sortOrder;
+        document.getElementById('modify_color').value = buttonColor || '#3498db'; // Fallback auf Standardfarbe
+    }
+
+    // JavaScript zum Umschalten der relevanten Parameterfelder basierend auf der Auswahl des Befehls
+    document.getElementById('command_type').addEventListener('change', function() {
+    var pingParams = document.getElementById('ping_params');
+    var echoParams = document.getElementById('echo_params');
+    var nslookupParams = document.getElementById('nslookup_params');
+    var remoteExecutionParams = document.getElementById('remote_execution_params');
+    var customParams = document.getElementById('custom_params');
+
+    // Alle Felder ausblenden sodass nur das relevante Feld angezeigt wird
+    pingParams.style.display = 'none';
+    echoParams.style.display = 'none';
+    nslookupParams.style.display = 'none';
+    remoteExecutionParams.style.display = 'none';
+    customParams.style.display = 'none';
+
+    // Nur das relevante Feld anzeigen
+    if (this.value == 'ping') {
+        pingParams.style.display = 'block';
+    } else if (this.value == 'echo') {
+        echoParams.style.display = 'block';
+    } else if (this.value == 'nslookup') {
+        nslookupParams.style.display = 'block';
+    } else if (this.value == 'remote-execution')  {
+        remoteExecutionParams.style.display = 'block';
+    } else if (this.value == 'custom') {
+        customParams.style.display = 'block';
+    }
+    });
+
+    // Nach dem anpassen des Befehls, nicht auf die /modify seite weiterleiten
+
+    document.getElementById('submitModifyButton').addEventListener('click', function() {
+        var form = document.getElementById('modifyForm');
+        var formData = new FormData(form);
+
+        fetch('/modify', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Zeige die Rückgabe im UI an, z. B. als Nachricht
+            alert(data.message);  // Optionale Benachrichtigung
+            togglePopup_modify(); // Popup schließen
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+        // Initiale Ansicht setzen
+        showCommandFields();
+
+
+
+    // Sicherstellen, dass der Header responsive bleibt
+    function adjustHeaderLayout() {
+        const header = document.querySelector('header');
+        if (window.innerWidth < 768) {
+            header.style.flexDirection = 'column';
+            header.style.height = 'auto';
+            header.style.padding = '10px';
+        } else {
+            header.style.flexDirection = 'row';
+            header.style.height = '70px';
+            header.style.padding = '0 20px';
+        }
+    }
+
+    function togglesidebar_right() {
+        const sidebar_right = document.querySelector('.sidebar_right');
+        const overlay = document.querySelector('.sidebar_right-overlay');
+        sidebar_right.classList.toggle('active');
+        overlay.style.display = sidebar_right.classList.contains('active') ? 'block' : 'none';
+    }
+
+    // CSRF-Handler für Fetch-Requests
+    function getCSRFToken() {   
+        return document.querySelector('meta[name="csrf-token"]').content;
+    }
+
+    // Event Listener für Resize
+    window.addEventListener('resize', adjustHeaderLayout);
+    // Initialaufruf
+    adjustHeaderLayout();
+
+</script>

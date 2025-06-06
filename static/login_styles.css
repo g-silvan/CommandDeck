@@ -1,0 +1,109 @@
+:root {
+
+    /* Colors */
+
+    --darkgray: #2c3e50;
+    --background: #34495e;
+    --btn_login_color: #3498db;
+    --header_color: #2C3E50;
+
+}
+
+/* Allgemeines Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: var(--background);
+    color: white;
+}
+
+.header_h1 {
+    margin-block-start: 0px;
+    margin: 0px;
+    font-style: italic;
+    color: white;
+    text-align: center;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.body_h1 {
+    color: white;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    top: 0px;
+    text-align: center;
+    background-color: var(--header_color);
+    margin: -20px;
+}
+
+.container {
+    background-color: var(--darkgray);
+    width: 400px;
+    height: 400px;
+    margin: 7em auto;
+    padding: 5em;
+    padding-top: 1em;
+    border-radius: 1.5em;
+    box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14);
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1.5em;
+}
+
+label {
+    font-weight: 600;
+    font-size: medium;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+    font-size: 1.3em;
+}
+
+button {
+    position: relative;
+    background-color: var(--btn_login_color);
+    color: #fff;
+    border: none;
+    border-radius: 1.5em;
+    font-size: 1.2em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    padding: 10px;
+}
+
+p {
+    color: rgb(143, 143, 143);
+    text-align: center;
+    margin: 1em;
+}
+
+.alert {
+    color: white;
+    text-align: center;
+    border-radius: 1em;
+}

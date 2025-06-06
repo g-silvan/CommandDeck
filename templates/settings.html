@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>CommandDeck - Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='settings.js') }}"></script>
+</head>
+<body>
+    <header>
+        <h1>CommandDeck Settings</h1>
+        {% if current_user.is_authenticated %}
+        <button class="hamburger-btn" onclick="togglesidebar_right()">
+            <img src="{{ url_for('static', filename='menu.png') }}" alt="Menu">
+        </button>
+        {% endif %}
+    </header>
+
+    <!-- sidebar_right -->
+    <div class="sidebar_right-overlay" onclick="togglesidebar_right()"></div>
+    <nav class="sidebar_right">
+        <div class="sidebar_right-content">
+            <a href="{{ url_for('index') }}" class="sidebar_right-link">Home</a><br>
+            <a href="{{ url_for('settings') }}" class="sidebar_right-link">Einstellungen</a><br>
+        </div>
+        <div class="sidebar_right-footer">
+            <form action="{{ url_for('logout') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="logout-btn">Logout ({{ current_user.username }})</button>
+            </form>
+        </div>
+    </nav>
+
+    <nav class="sidebar_left">
+        <div class="sidebar_left-content">
+            <a href="#" onclick="toggleUserSettings()" class="sidebar_left-link">User</a><br>
+            <a href="#" onclick="toggleButtonSettings()" class="sidebar_left-link">Buttons</a><br>
+            <a href="#" onclick="toggleSystemSettings()" class="sidebar_left-link">System</a><br>
+        </div>
+    </nav>
+
+    <div class="settings_container">
+        <div class="settings_user{% if active == 'user' %} show{% endif %}" id="settings_user">
+
+            <h2>User Settings</h2>
+
+           <div class="user-list">
+                <div class="user-header">
+                    <span class="user-name-header">Username</span>
+                    <span class="user-role-header">Permission Level</span>
+                    <span class="user-actions-header">Modify</span>
+                    <span class="user-actions-header">Delete</span>
+                </div>
+            {% for user in users %}
+                <div class="user-item">
+                    <span class="user-name">{{ user.username }}</span>
+                    <span class="user-role">{{ user.permission_level }}</span>
+                    <span class="user-actions">
+                        <form action="#" method="POST" class="modify-user-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn-user-modify-small" type="button" onclick="toggleModifyUserPopup('{{ user.id }}')">Modify</button>
+                        </form>
+                    </span>
+                    <span class="user-actions">
+                        <form action="#" method="POST" class="delete-user-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn-user-delete-small" type="button" onclick="toggleDeleteUserPopup('{{ user.id }}')">Delete</button>
+                        </form>
+                    </span>
+                    
+                </div>
+            {% endfor %}
+
+                <button class="btn-create-user" onclick="toggleCreateUserPopup()">Create User</button>
+            </div>
+        </div>
+
+        <div class="settings_buttons{% if active == 'button' %} show{% endif %}" id="settings_buttons">
+            <h2>Button Settings</h2>
+            
+            <div class="button-list" id="button_list">
+                <div class="button-header">
+                    <span class="button-name-header">Button</span>
+                    <span class="button-action-header">Action</span>
+                    <span class="button-actions-header">Permission</span>
+                </div>
+
+            {% for button in buttons %}
+                <div class="button-item">
+                    <span class="button-name">{{ button.name }}</span>
+                    <span class="button-action">{{ button.command }}</span>
+                    <span class="button-actions">
+                        <form action="#" method="POST" class="modify-button-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn-button-modify-small" type="button" onclick="togglePermissionsButtonPopup('{{ button.id }}')">Permissions</button>
+                        </form>
+                    </span>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div  class="settings_system{% if active == 'system' %} show{% endif %}" id="settings_system">
+            <h2>System Settings</h2>
+            <div class="system-settings-list">
+                <h3>Public SSH Key:</h3>
+                <p id="public_ssh_key">{{ publickey }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="ModifyUserPopup" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: white;">Modify User</h2>
+
+            <form action="{{ url_for('settings') }}" method="POST" id="modifyUserForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="modify_user_id" name="user_id">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="modify_username" name="username" class="form-input" required>
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="modify_password" name="password" class="form-input" placeholder="Leave blank to keep current password">
+                    <label for="role" class="form-label">Role:</label>
+                    <select id="modify_role" name="role" class="form-input" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" id="submitModifyUser" name="modify_user">Modify User</button>
+            </form>
+            <button class="btn-close-popup" onclick="toggleModifyUserPopup()">Close</button>
+        </div>
+    </div>
+
+
+    <div id="CreateUserPopup" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: white;">Create User</h2>
+
+            <form action="{{ url_for('settings') }}" method="POST" id="createUserForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="create_username" name="username" class="form-input" required>
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="create_password" name="password" class="form-input" required>
+                    <label for="role" class="form-label">Role:</label>
+                    <select id="create_role" name="role" class="form-input" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" id="submitCreateUser" name="create_user">Add User</button>
+            </form>
+            <button class="btn-close-popup" onclick="toggleCreateUserPopup()">Close</button>
+        </div>
+    </div>
+
+    <div id="DeleteUserPopup" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: white;">Delete user</h2>
+            <form action="{{ url_for('settings') }}" method="POST" id="deleteUserForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="delete_user_id" name="user_id">
+                <input type="hidden" id="delete_username_original" name="delete_username_original">
+                <p>Are you sure you want to delete this user?</p>
+                <div class="form-group">
+                    <input type="text" id="delete_username" name="username" class="form-input" placeholder="Type username to confirm" required>
+                </div>
+                <button type="submit" class="btn-submit" id="submitDeleteUser" name="delete_user" style="background-color: var(--btn-delete-color)">Delete User</button>
+            </form>
+            <button class="btn-close-popup" onclick="toggleDeleteUserPopup()">Close</button>
+
+        </div>
+    </div>
+
+    <div id="ModifyPermissionsPopup" class="overlay-container">
+        <div class="popup-box">
+            <h2 style="color: white;">Modify Button Permissions</h2>
+            <form action="{{ url_for('settings') }}" method="POST" id="modifyPermissionsForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="modify_button_id" name="button_id">
+                <div class="permissions-user-list">
+                    <div class="permissions-header">
+                        <span class="permissions-user-name-header">Username</span>
+                        <span class="permissions-user-action-header">Action</span>
+                    </div>
+                    {% for user in only_users %}
+                    <div class="permissions-item">
+                        <span class="permissions-user-name">{{ user.username }}</span>
+                        <span class="permissions-user-action">
+                            <input type="checkbox" name="user_permissions" value="{{ user.id }}" id="permission_{{ user.id }}">
+                        </span>
+                    </div>
+                {% endfor %}
+                </div>
+                <button type="submit" class="btn-submit" id="submitModifyPermissions" name="modify_permissions">Speichern</button>
+            </form>
+            <button class="btn-close-popup" onclick="togglePermissionsButtonPopup()">Close</button>
+    </div>
+</body>
+</html>
