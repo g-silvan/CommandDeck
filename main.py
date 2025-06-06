@@ -13,10 +13,10 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 # Lade die Umgebungsvariablen aus der .env Datei
 load_dotenv(dotenv_path=".env")
 
-db_user = os.getenv("DBUSER")
-db_password = os.getenv("DBPASS")
-db_host = os.getenv("DBHOST")
-db_database = os.getenv("DBNAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASS")
+db_host = os.getenv("DB_HOST")
+db_database = os.getenv("DB_NAME")
 web_port = os.getenv("WEB_PORT")
 timeout = int(os.getenv("TIMEOUT"))
 sshkey_path = os.getenv("SSH_KEY_PATH")

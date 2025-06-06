@@ -6,10 +6,10 @@ import os
 load_dotenv()
 
 # Database Config
-db_user = os.getenv("DBUSER")
-db_password = os.getenv("DBPASS")
-db_host = os.getenv("DBHOST")
-db_database = os.getenv("DBNAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASS")
+db_host = os.getenv("DB_HOST")
+db_database = os.getenv("DB_NAME")
 
 def create_user(username, plain_password, permission_level):
     try:
