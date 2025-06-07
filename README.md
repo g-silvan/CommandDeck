@@ -65,6 +65,7 @@ mysql -u commanddeck_user -p commanddeck_database < database.sql
 ## 6. Create and Activate Virtual Environment
 
 ```bash
+cd CommandDeck
 python3 -m venv venv
 source venv/bin/activate
 ```
