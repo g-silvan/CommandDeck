@@ -40,8 +40,6 @@ CREATE TABLE `buttons` (
 
 LOCK TABLES `buttons` WRITE;
 /*!40000 ALTER TABLE `buttons` DISABLE KEYS */;
-INSERT INTO `buttons` VALUES
-(1079,'test  button','ping 1.1.1.1 -c 4','#3498db',1);
 /*!40000 ALTER TABLE `buttons` ENABLE KEYS */;
 UNLOCK TABLES;
 
