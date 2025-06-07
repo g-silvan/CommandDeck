@@ -2,9 +2,11 @@ import os # Betriebsystemfunktionen
 import random # Zufallszahlen
 import subprocess # Ausführen von Shell-Befehlen
 import bcrypt # Passwort-Hashing
+import logging # Logging
 import mariadb as db #Datenbankverbindung
-from dotenv import load_dotenv #U mgebungsvariablen
+from dotenv import load_dotenv #Umgebungsvariablen
 from flask_wtf.csrf import CSRFProtect
+from logging.config import dictConfig # Logging Konfiguration
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -28,17 +30,33 @@ HTTPS_ONLY = os.getenv("HTTPS_ENABLED")
 if HTTPS_ONLY is not None:
     HTTPS_ONLY = HTTPS_ONLY.capitalize() == "True"
 
-print(f"HTTPS_ONLY: {HTTPS_ONLY}")
-
 publicsshkey_path = os.path.expanduser(publicsshkey_path) 
 
 try:
     with open(publicsshkey_path, 'r') as file:
         publickey = file.read()
 except Exception as e:
-    print(f"Fehler beim Laden des Public SSH Keys: {e}")
+    logging.error(f"Fehler beim Laden des Public SSH Keys: {e}")
     publickey = ""
 
+
+# Logging Konfiguration
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'file': {
+        'class': 'logging.FileHandler',
+        'filename': 'app.log',
+        'formatter': 'default',
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['file']
+    }
+})
 
 # Verbindung zur Datenbank
 
@@ -51,7 +69,7 @@ def get_db_connection():
             database=db_database)
         return connection
     except db.Error as e:
-        print(f"Fehler bei der Verbindung zur Datenbank: {e}")
+        logging.error(f"Fehler bei der Verbindung zur Datenbank: {e}")
         return None
 
 # Funktion um alle Buttons eines Benutzers abzufragen
@@ -62,23 +80,23 @@ def get_user_buttons(username):
             cursor = conn.cursor()
 
             # User-ID abfragen
-            cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+            cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
 
             user_row = cursor.fetchone() 
             user_id = user_row[0] # Erster Wert von der Ausgabe als user_id festlegen
 
             # Buttons abfragen
-            cursor.execute("SELECT buttons.button_id, buttons.button_name, buttons.button_command, buttons.button_color, buttons.sort_order FROM buttons JOIN user_buttons ON buttons.button_id = user_buttons.button_id WHERE user_buttons.user_id = ? ORDER BY buttons.sort_order ASC", (user_id,))
+            cursor.execute("SELECT buttons.button_id, buttons.button_name, buttons.button_command, buttons.button_color, buttons.sort_order FROM buttons JOIN user_buttons ON buttons.button_id = user_buttons.button_id WHERE user_buttons.user_id = %s ORDER BY buttons.sort_order ASC", (user_id,))
 
             rows = cursor.fetchall() # Alle Zeilen abfragen
-            conn.close # Verbindung zur Datenbank schließen
+            conn.close() # Verbindung zur Datenbank schließen
 
             buttons = [{'id': button_id, 'name': button_name, 'command': button_command, 'color': button_color, 'sort_order': sort_order}
                        for (button_id, button_name, button_command, button_color, sort_order) in rows] # Liste der Buttons erstellen
             return(buttons)
     # Fehlerbehandlung
     except db.Error as e:
-        print(f"Fehler beim Laden der Buttons: {e}")
+        logging.error(f"Fehler beim Laden der Buttons: {e}")
         return []
     
 
@@ -94,7 +112,7 @@ def  get_all_buttons():
                        for (button_id, button_name, button_command, button_color, sort_order) in rows]
             return buttons
     except db.Error as e:
-        print(f"Fehler beim Laden aller Buttons: {e}")
+        logging.error(f"Fehler beim Laden aller Buttons: {e}")
         return []
 
             
@@ -110,7 +128,7 @@ def get_max_sort_order():
             conn.close()
             return max_order if max_order is not None else 0
     except db.Error as e:
-        print(f"Fehler beim Abrufen der maximalen Sortierreihenfolge: {e}")
+        logging.error(f"Fehler beim Abrufen der maximalen Sortierreihenfolge: {e}")
         return 0
 
 # Funktion um eine Button ID zu generieren
@@ -136,7 +154,7 @@ def check_button_id_unique(button_id):
             conn.close()
             return count == 0
     except db.Error as e:
-        print(f"Fehler beim Überprüfen der ButtonID: {e}")
+        logging.error(f"Fehler beim Überprüfen der ButtonID: {e}")
         return False
 
 
@@ -216,7 +234,7 @@ def delete_button(button_name):
  
 
 def modify_button(button_id, new_name, new_command, new_color, new_sort_order):
-    print(f"Modifying button with ID: {button_id}, new name: {new_name}, new command: {new_command}, new color: {new_color}, new sort order: {new_sort_order}")
+    logging.info(f"Modifying button with ID: {button_id}, new name: {new_name}, new command: {new_command}, new color: {new_color}, new sort order: {new_sort_order}")
     try:
         conn = get_db_connection()
         if conn:
@@ -236,41 +254,25 @@ def modify_button(button_id, new_name, new_command, new_color, new_sort_order):
             # Abfrage des aktuellen Sortierwerts
             cursor.execute("SELECT sort_order FROM buttons WHERE button_id = %s", (button_id,)) 
             old_sort_order = cursor.fetchone()[0]
-            print(f"Old sort order: {old_sort_order}")
-            print(f"New sort order: {new_sort_order}")
             max_sort_order = get_max_sort_order()
 
             if new_sort_order != old_sort_order:
-                print("1")
                 if new_sort_order > max_sort_order:
-                    print("2")
                     new_sort_order = max_sort_order + 1
 
                 cursor.execute("UPDATE buttons SET sort_order = 0 WHERE button_id = %s", (button_id,))
 
 
                 if new_sort_order < old_sort_order: #Falls der neue Sortierwert kleiner ist als der alte
-                    print (f"Moving up")
+
                     cursor.execute("UPDATE buttons SET sort_order = sort_order + 1 WHERE sort_order >= %s AND sort_order < %s", (new_sort_order, old_sort_order))
 
 
                 elif new_sort_order > old_sort_order: #Falls der neue Sortierwert größer ist als der alte
-                    print (f"Moving down")
                     cursor.execute("UPDATE buttons SET sort_order = sort_order - 1 WHERE sort_order > %s AND sort_order <= %s", (old_sort_order, new_sort_order))
 
                 cursor.execute("UPDATE buttons SET sort_order = %s WHERE button_id = %s", (new_sort_order, button_id))
-                
-            # # Wenn sich die Sortierreihenfolge ändert
-            # if new_sort_order != old_sort_order:
-            #     if new_sort_order < old_sort_order:
-            #         print ("Moving up")
-            #         cursor.execute("UPDATE buttons SET sort_order = sort_order + 1 WHERE sort_order >= %s AND sort_order < %s", (new_sort_order, old_sort_order))
-            #         print("Nach oben verschoben:", cursor.rowcount)
-            #     else:
-            #         print ("Moving down")
-            #         cursor.execute("UPDATE buttons SET sort_order = sort_order - 1 WHERE sort_order > %s AND sort_order <= %s", (old_sort_order, new_sort_order))
-            #         print("Nach unten verschoben:", cursor.rowcount)
-                    
+                                    
             # Aktualisiere den aktuellen Button
             cursor.execute(
                 "UPDATE buttons SET button_name = %s, button_command = %s, sort_order = %s, button_color = %s WHERE button_id = %s",
@@ -305,7 +307,7 @@ def  load_all_settings_data(active='users'):
             conn.close()
             return render_template('settings.html', users=users, buttons=buttons, active=active, only_users=only_users, publickey=publickey)
     except db.Error as e:
-        print(f"Error loading buttons: {e}")
+        logging.error(f"Error loading buttons: {e}")
         return render_template('settings.html', users=[], buttons=[], active=active)
 
 
@@ -350,7 +352,7 @@ def load_user(user_id):
             if user_data:
                 return User(id=user_data[0], username=user_data[1], permission_level=user_data[2])
     except db.Error as e:
-        print(f"Error loading user: {e}")
+        logging.error(f"Error loading user: {e}")
     return None
 
 login_manager.init_app(app) # Initialisiere den LoginManager mit der Flask App
@@ -384,7 +386,7 @@ def login():
                 else:
                     flash('Ungültige Anmeldedaten')
         except db.Error as e:
-            print(f"Datenbankfehler: {e}")
+            logging.error(f"Datenbankfehler: {e}")
             flash('Datenbankfehler')
     
     return render_template('login.html')
@@ -438,7 +440,6 @@ def index():
                 remote_username = request.form.get('remote_username')
                 
                 button_command = f'ssh -i /root/.ssh/commanddeck -p {remote_port} {remote_username}@{remote_host} "{remote_command}"'
-                print(f"Remote Command: {button_command}")
             elif command_type == "custom":
                 custom_command = request.form.get('custom_command')
                 button_command = custom_command
@@ -451,8 +452,8 @@ def index():
             # Wenn ein existierender Button gedrückt wird
             pressed_button = request.form.get('pressed_button')
             pressed_command = request.form.get('pressed_command')
-            print(f"Button '{pressed_button}' wurde gedrückt.")
-            print(f"Button '{pressed_command}' wurde gedrückt.")
+            logging.info(f"Button '{pressed_button}' wurde gedrückt.")
+            logging.info(f"Button '{pressed_command}' wurde gedrückt.")
             try:
                 result = subprocess.run(pressed_command, timeout=timeout, shell=True, text=True, capture_output=True, check=True)
                 output = result.stdout
@@ -469,8 +470,6 @@ def index():
             return redirect(url_for('index'))
         
         elif 'modify_button' in request.form:
-
-            print(request.form)
             # Wenn ein Button modifiziert wird
             button_id = request.form.get('button_id')
             new_name = request.form.get('button_name')  # Neuer Name
@@ -500,7 +499,6 @@ def settings():
 
     if request.method == 'GET':
         active = request.args.get('active', 'user')  # Default Tab User Einstellungen
-        print(f"Settings GET request: active={active}, current_user={current_user.username}, permission_level={current_user.permission_level}")
         return load_all_settings_data(active=active)  # Alle Benutzer und Buttons laden
     elif request.method == 'POST':        
         if request.form.get('action') == 'getuserinfo':
@@ -529,8 +527,6 @@ def settings():
             new_username = request.form.get('username')
             new_password = request.form.get('password')
             new_permission_level = request.form.get('role')
-            # print(f"Modifying user with ID: {user_id}, new username: {new_username}, new permission level: {new_permission_level}, new password: {new_password}")
-            print(f'Settings POST request: {request.form}')
 
             try:
                 conn = get_db_connection()
@@ -561,12 +557,12 @@ def settings():
 
                     cursor.execute("UPDATE users SET username = %s, password_hash = %s, permission_level = %s WHERE id = %s", (new_username, password, new_permission_level, user_id))
                     conn.commit()
-                    print(f"User {new_username} modified successfully.")
+                    logging.info(f"User {new_username} modified successfully.")
                     flash(f'User {new_username} modified successfully.')
                 else:
                     flash('Database connection failed.')
             except db.Error as e:
-                print(f'Database error: {e}')
+                logging.error(f'Database error: {e}')
                 flash('Database error occurred while modifying user.')
             return redirect(url_for('settings'))
         
@@ -574,7 +570,7 @@ def settings():
             username = request.form.get('username')
             password = request.form.get('password')
             permission_level = request.form.get('role')
-            print(f"Creating user with username: {username}, permission level: {permission_level}")
+            logging.info(f"Creating user with username: {username}, permission level: {permission_level}")
             if not username or not password:
                 flash('Username and password are required.')
                 return redirect(url_for('settings'))
@@ -583,7 +579,7 @@ def settings():
                 if conn:
                     cursor = conn.cursor()
                     # Prüfen ob der Benutzername schon existiert
-                    cursor.execute("SELECT COUNT(*) FROM users WHERE username = ?", (username,))
+                    cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s", (username,))
                     (count,) = cursor.fetchone()
                     if count > 0:
                         flash('Username already exists.')
@@ -598,29 +594,28 @@ def settings():
                 else:
                     flash('Database connection failed.')
             except db.Error as e:
-                print(f'Database error: {e}')
+                logging.error(f'Database error: {e}')
             return redirect(url_for('settings'))
         
         elif 'delete_user' in request.form:
             user_id = request.form.get('user_id')
             username = request.form.get('username')
             if not user_id:
-                print('No user selected for deletion.')
+                logging.error('No user selected for deletion.')
             try:
                 conn = get_db_connection()
                 if conn:
                     if current_user.id == int(user_id):
                         flash('You cannot delete your own account.')
-                        print('User tried to delete their own account.')
+                        logging.error('User tried to delete their own account.')
                     cursor = conn.cursor()
                     cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
                     conn.commit()
-                    print(f'User {username} deleted successfully.')
+                    logging.info(f'User {username} deleted successfully.')
                 else:
-                    print('Database connection failed.')
+                    logging.error('Database connection failed.')
             except db.Error as e:
-                print(f'Database error: {e}')
-                print('Database error occurred while deleting user.')
+                logging.error(f'Database error occurred while deleting user: {e}')
             return redirect(url_for('settings'))
         
         # In deiner settings()-Route ergänzen:
@@ -656,27 +651,27 @@ def settings():
                     if not user_ids:
                         cursor.execute("DELETE FROM user_buttons WHERE button_id = %s", (button_id,))
                         conn.commit()
-                        print(f'All permissions for Button {button_id} removed successfully.')
+                        logging.warning(f'All permissions for Button {button_id} removed successfully.')
 
                     # Neue Berechtigungen setzen
                     for user_id in user_ids:
                         cursor.execute("INSERT INTO user_buttons (user_id, button_id) VALUES (%s, %s)", (user_id, button_id))
                         conn.commit()
-                        print(f'Permissions for User {user_id} modified successfully.')
+                        logging.info(f'Permissions for User {user_id} modified successfully.')
                     
                     return redirect(url_for('settings', active='button'))
             except db.Error as e:
-                print(f'Database error: {e}')
+                logging.error(f'Database error: {e}')
                 return redirect(url_for('settings'))
             
            
 
 
         else:
-            print("Unknown action in settings form: ", request.form)
+            logging.error("Unknown action in settings form: ", request.form)
             return redirect(url_for('settings'))
         
     return render_template('settings.html')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True, port=int(web_port))
+    app.run(host="0.0.0.0", debug=False, port=int(web_port))
