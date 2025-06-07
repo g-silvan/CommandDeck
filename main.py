@@ -534,7 +534,19 @@ def settings():
                 if conn:
                     cursor = conn.cursor()
 
-                    # Prüfen ob das Passwort geändert wurde
+                    # Falls User vorher admin war und nun kein admin mehr ist ob noch mindestens ein admin exisitert, falls nicht abbrechen
+                    cursor.execute("SELECT permission_level FROM users WHERE id = %s", (user_id,))
+                    old_permission_level = cursor.fetchone()[0]
+
+                    if old_permission_level == 'admin' and new_permission_level != 'admin':
+                        cursor.execute("SELECT COUNT(*) FROM users WHERE permission_level = 'admin' AND id != %s", (user_id,))
+                        (admin_count,) = cursor.fetchone()
+                        if admin_count == 0:
+                            flash('Cannot remove last admin. At least one admin must remain.')
+                            conn.close()
+                            return redirect(url_for('settings'))
+
+                            # Prüfen ob das Passwort geändert wurde
                     if new_password != "" and new_password is not None:
                         password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
                     else:
