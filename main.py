@@ -495,6 +495,9 @@ def index():
 @login_required
 def settings():
 
+    if current_user.permission_level != 'admin':
+        abort(403)  # Nur Admins dürfen auf die Settingspage zugreifen
+
     if request.method == 'GET':
         active = request.args.get('active', 'user')  # Default Tab User Einstellungen
         print(f"Settings GET request: active={active}, current_user={current_user.username}, permission_level={current_user.permission_level}")

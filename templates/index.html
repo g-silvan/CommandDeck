@@ -8,18 +8,6 @@
     <link rel="stylesheet" href="static/styles.css">
 </head>
 <body>
-    <!-- <header>
-        <h1>CommandDeck</h1>
-        {% if current_user.is_authenticated %}
-        <div class="logout-container">
-            <form action="{{ url_for('logout') }}" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="logout-btn">Logout ({{ current_user.username }})</button>
-            </form>
-        </div>
-        {% endif %}
-    </header> -->
-
     <header>
         <h1>CommandDeck</h1>
         {% if current_user.is_authenticated %}
@@ -33,10 +21,10 @@
     <div class="sidebar_right-overlay" onclick="togglesidebar_right()"></div>
     <nav class="sidebar_right">
         <div class="sidebar_right-content">
-            <!-- Hier können Seitenlinks hinzugefügt werden -->
             <a href="{{ url_for('index') }}" class="sidebar_right-link">Home</a><br>
+            {% if current_user.permission_level == 'admin' %}
             <a href="{{ url_for('settings') }}" class="sidebar_right-link">Einstellungen</a><br>
-            <!-- Weitere Links... -->
+            {% endif %}
         </div>
         <div class="sidebar_right-footer">
             <form action="{{ url_for('logout') }}" method="POST">
