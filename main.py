@@ -14,7 +14,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 load_dotenv(dotenv_path=".env")
 
 db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASS")
+db_password = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 db_database = os.getenv("DB_NAME")
 web_port = os.getenv("WEB_PORT")

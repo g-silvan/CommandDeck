@@ -7,7 +7,7 @@ load_dotenv()
 
 # Database Config
 db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASS")
+db_password = os.getenv("DB_PASSWORD")
 db_host = os.getenv("DB_HOST")
 db_database = os.getenv("DB_NAME")
 
