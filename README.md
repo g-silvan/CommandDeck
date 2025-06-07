@@ -154,4 +154,5 @@ Finally, to create a default admin account:
 
 **All steps completed! Your application is now ready to use with the default admin account.**
 
-**Credentials for default Admin user: Username: admin  Password: commanddeck**
+**Credentials for default Admin user:
+Username: admin  Password: commanddeck**
