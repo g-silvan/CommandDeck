@@ -1,7 +1,7 @@
 /*!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.11.8-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: lab_commanddeck
+-- Host: localhost    Database: commanddeck_database
 -- ------------------------------------------------------
 -- Server version	10.11.8-MariaDB-0ubuntu0.24.04.1
 
@@ -40,6 +40,8 @@ CREATE TABLE `buttons` (
 
 LOCK TABLES `buttons` WRITE;
 /*!40000 ALTER TABLE `buttons` DISABLE KEYS */;
+INSERT INTO `buttons` VALUES
+(1079,'test  button','ping 1.1.1.1 -c 4','#3498db',1);
 /*!40000 ALTER TABLE `buttons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -83,7 +85,7 @@ CREATE TABLE `users` (
   `permission_level` varchar(10) NOT NULL DEFAULT 'user',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,8 +94,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES
-(1,'admin','$2b$12$20PMbK2knh5JZPNTJMxQyeyxjXyIyFAdKD5aakJjmaBt8PgzxSCNu','admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -106,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-07  9:55:41
+-- Dump completed on 2025-06-07 12:04:27
