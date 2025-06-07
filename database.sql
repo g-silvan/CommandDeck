@@ -40,12 +40,6 @@ CREATE TABLE `buttons` (
 
 LOCK TABLES `buttons` WRITE;
 /*!40000 ALTER TABLE `buttons` DISABLE KEYS */;
-INSERT INTO `buttons` VALUES
-(1111,'Button 2','echo button2','#ff0400',2),
-(3333,'Button 1','echo button1','#757575',1),
-(3374,'Test response','ssh -i /root/.ssh/commanddeck -p 22 root@10.10.70.103 \"cat test.test\"','#3498db',5),
-(4772,'button 3','echo button3','#590d68',3),
-(9652,'Remote  SSH Test','ssh root@10.10.70.103 -i /root/.ssh/commanddeck -t \"echo \"remote ssh test  worked!\" > test.test\"','#3498db',4);
 /*!40000 ALTER TABLE `buttons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -72,12 +66,6 @@ CREATE TABLE `user_buttons` (
 
 LOCK TABLES `user_buttons` WRITE;
 /*!40000 ALTER TABLE `user_buttons` DISABLE KEYS */;
-INSERT INTO `user_buttons` VALUES
-(25,3333),
-(25,4772),
-(26,1111),
-(26,3333),
-(26,4772);
 /*!40000 ALTER TABLE `user_buttons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -95,7 +83,7 @@ CREATE TABLE `users` (
   `permission_level` varchar(10) NOT NULL DEFAULT 'user',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,9 +93,7 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(24,'admin','$2b$12$20PMbK2knh5JZPNTJMxQyeyxjXyIyFAdKD5aakJjmaBt8PgzxSCNu','admin'),
-(25,'user','$2b$12$CM6teb6pTyksf3htKHWLP./d58AKjLLMApLFWnPgYdzIzv3fQF3ia','user'),
-(26,'silvan','(\"(\'$2b$12$PoIyVb9rSYOsCZUDSOYlQOlO.8pcIxTfWEQjZ8q4w6WhmOie4z9dC\',)\",)','user');
+(1,'admin','$2b$12$20PMbK2knh5JZPNTJMxQyeyxjXyIyFAdKD5aakJjmaBt8PgzxSCNu','admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -120,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-06 20:33:52
+-- Dump completed on 2025-06-07  9:55:41
