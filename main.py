@@ -439,7 +439,7 @@ def index():
                 remote_port = request.form.get('remote_port', '22')
                 remote_username = request.form.get('remote_username')
                 
-                button_command = f'ssh -i /root/.ssh/commanddeck -p {remote_port} {remote_username}@{remote_host} "{remote_command}"'
+                button_command = f'ssh -i {sshkey_path} -p {remote_port} {remote_username}@{remote_host} "{remote_command}"'
             elif command_type == "custom":
                 custom_command = request.form.get('custom_command')
                 button_command = custom_command
