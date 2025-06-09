@@ -38,6 +38,7 @@ sudo mysql -u root -p
 ```
 
 Execute the following commands in the MariaDB shell:
+Change the Username & Password!
 
 ```sql
 CREATE USER 'commanddeck_user'@'localhost' IDENTIFIED BY 'commanddeck_password';
@@ -64,6 +65,7 @@ mysql -u commanddeck_user -p commanddeck_database < database.sql
 ## 6. Create and Activate Virtual Environment
 
 ```bash
+cd CommandDeck
 python3 -m venv venv
 source venv/bin/activate
 ```
@@ -152,3 +154,9 @@ Finally, to create a default admin account:
 ```
 
 **All steps completed! Your application is now ready to use with the default admin account.**
+
+**Credentials for default Admin user:**
+
+**Username: admin**
+
+**Password: commanddeck**
