@@ -13,15 +13,15 @@
 
 ---
 
-![Anmeldemaske: Sicheres Login für Benutzer](https://github.com/g-silvan/CommandDeck/media/login_screen.png)
+![Anmeldemaske: Sicheres Login für Benutzer](https://github.com/g-silvan/CommandDeck/blob/main/media/login_screen.png)
 
-![Dashboard (Admin): Übersicht und Ausführung der wichtigsten Aktionen](https://github.com/g-silvan/CommandDeck/media/dashboard_admin.png)
+![Dashboard (Admin): Übersicht und Ausführung der wichtigsten Aktionen](https://github.com/g-silvan/CommandDeck/blob/main/media/dashboard_admin.png)
 
-![Ansicht: Aktionen ohne Bearbeitungsmodus](https://github.com/g-silvan/CommandDeck/media/dashboard_user.png)
+![Ansicht: Aktionen ohne Bearbeitungsmodus](https://github.com/g-silvan/CommandDeck/blob/main/media/dashboard_user.png)
 
-![Vergabe von individuellen Button-Berechtigungen pro Benutzer](https://github.com/g-silvan/CommandDeck/media/button_permissions.png)
+![Vergabe von individuellen Button-Berechtigungen pro Benutzer](https://github.com/g-silvan/CommandDeck/blob/main/media/button_permissions.png)
 
-![Benutzerübersicht und Verwaltung von Accounts](https://github.com/g-silvan/CommandDeck/media/users.png)
+![Benutzerübersicht und Verwaltung von Accounts](https://github.com/g-silvan/CommandDeck/blob/main/media/users.png)
 
 ---
 
