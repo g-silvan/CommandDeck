@@ -1,3 +1,32 @@
+# Features
+
+- Einfache Weboberfläche zur Verwaltung und Ausführung von Befehlen
+- Anpassbare Benutzerrechte pro Button
+- Übersichtliche Darstellung der angelegten Aktionen (Buttons)
+- Benutzerverwaltung mit verschiedenen Berechtigungsstufen (Admin, User)
+- Visuelle Anpassung der Buttonfarbe je nach Funktion
+- Möglichkeit, Buttons zu erstellen, zu bearbeiten oder zu löschen
+- Zuweisung von Benutzerrechten für einzelne Buttons
+- Sicherer Login-Screen für Benutzer-Authentifizierung
+- Unterstützung von Remote-Befehlen via SSH
+- Integration einer SQL-Datenbank zur Speicherung von Einstellungen und Nutzerdaten
+
+---
+
+![Anmeldemaske: Sicheres Login für Benutzer](https://github.com/g-silvan/CommandDeck/media/login_screen.png)
+
+![Dashboard (Admin): Übersicht und Ausführung der wichtigsten Aktionen](https://github.com/g-silvan/CommandDeck/media/dashboard_admin.png)
+
+![Ansicht: Aktionen ohne Bearbeitungsmodus](https://github.com/g-silvan/CommandDeck/media/dashboard_user.png)
+
+![Vergabe von individuellen Button-Berechtigungen pro Benutzer](https://github.com/g-silvan/CommandDeck/media/button_permissions.png)
+
+![Benutzerübersicht und Verwaltung von Accounts](https://github.com/g-silvan/CommandDeck/media/users.png)
+
+---
+
+# Installation
+
 ## 1. Install Python 3 and pip
 
 ```bash
